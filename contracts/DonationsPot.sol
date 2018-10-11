@@ -12,6 +12,14 @@ contract DonationsPot is Ownable {
     address public tokenDistributor;
     ERC20 public daiToken;
 
+    /**
+    * @dev Throws if called by any account other than the token distributor.
+    */
+    modifier onlyTokenDistributor() {
+        require(msg.sender == tokenDistributor);
+        _;
+    }
+
     struct Donor {
         string name;
         uint256 balance;
@@ -38,7 +46,7 @@ contract DonationsPot is Ownable {
         daiToken =_daiToken;
     }
 
-    function registerDonation(address _from, string _name, uint256 _value) public onlyOwner {
+    function registerDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
         require(daiToken.balanceOf(this).sub(registeredBalance) >= _value);
         donors[_from] = Donor(_name, _value, 1);
         registeredBalance = registeredBalance.add(_value);

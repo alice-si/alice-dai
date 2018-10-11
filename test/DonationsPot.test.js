@@ -16,9 +16,14 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
   });
 
 
-  it("should register the first donation from Donor 1", async function() {
+  it("should not register donation from someone other than the Ttoken distributor", async function() {
     await dai.mint(pot.address, 5);
-    await pot.registerDonation(donor1, "Donor_1", 5);
+    await pot.registerDonation(donor1, "Donor_1", 5).shouldBeReverted();
+  });
+
+
+  it("should register the first donation from Donor 1", async function() {
+    await pot.registerDonation(donor1, "Donor_1", 5, {from: tokenDistributor});
 
     (await dai.balanceOf(pot.address)).should.be.bignumber.equal(5);
 
