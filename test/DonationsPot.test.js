@@ -37,4 +37,28 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
     (await pot.getDonorDonationsCount(donor1)).should.be.bignumber.equal(1);
   });
 
+
+  it("should register the second donation from Donor 1", async function() {
+    await dai.mint(pot.address, 7);
+    await pot.registerDonation(donor1, "Donor_1", 7, {from: tokenDistributor});
+
+    (await dai.balanceOf(pot.address)).should.be.bignumber.equal(12);
+
+    (await pot.registeredBalance()).should.be.bignumber.equal(12);
+    (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(12);
+    (await pot.getDonorDonationsCount(donor1)).should.be.bignumber.equal(2);
+  });
+
+
+  it("should register the first donation from Donor 2", async function() {
+    await dai.mint(pot.address, 9);
+    await pot.registerDonation(donor2, "Donor_2", 9, {from: tokenDistributor});
+
+    (await dai.balanceOf(pot.address)).should.be.bignumber.equal(21);
+
+    (await pot.registeredBalance()).should.be.bignumber.equal(21);
+    (await pot.getDonorBalance(donor2)).should.be.bignumber.equal(9);
+    (await pot.getDonorDonationsCount(donor2)).should.be.bignumber.equal(1);
+  });
+
 });
