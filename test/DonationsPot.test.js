@@ -22,6 +22,11 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
   });
 
 
+  it("should not register empty donation", async function() {
+    await pot.registerDonation(donor1, "Donor_1", 0, {from: tokenDistributor}).shouldBeReverted();
+  });
+
+
   it("should register the first donation from Donor 1", async function() {
     await pot.registerDonation(donor1, "Donor_1", 5, {from: tokenDistributor});
 

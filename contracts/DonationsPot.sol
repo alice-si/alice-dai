@@ -48,7 +48,12 @@ contract DonationsPot is Ownable {
 
     function registerDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
         require(daiToken.balanceOf(this).sub(registeredBalance) >= _value);
-        donors[_from] = Donor(_name, _value, 1);
+        require(_value > 0);
+        if (donors[_from].balance == 0) {
+            donors[_from] = Donor(_name, _value, 1);
+        } else {
+
+        }
         registeredBalance = registeredBalance.add(_value);
         emit DonationRegistered(_from, _name, _value);
     }
