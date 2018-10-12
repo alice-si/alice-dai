@@ -3,7 +3,7 @@ require('./test-utils');
 var DaiMock = artifacts.require("DaiMock");
 var DonationsPot = artifacts.require("DonationsPot");
 
-contract('Donations Pot', function([owner, charityManager, tokenDistributor, donor1, donor2]) {
+contract('Donations Pot', function([owner, charityManager, tokenDistributor, donor1, donor2, charity]) {
   var dai, pot;
 
   before("deploy Donations Pot", async function() {
@@ -59,6 +59,26 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
     (await pot.registeredBalance()).should.be.bignumber.equal(21);
     (await pot.getDonorBalance(donor2)).should.be.bignumber.equal(9);
     (await pot.getDonorDonationsCount(donor2)).should.be.bignumber.equal(1);
+  });
+
+
+  it("should not add charity by someone else than a charity manager", async function() {
+    await pot.addCharity(charity, "Charity").shouldBeReverted();
+  });
+
+
+  it("should not add charity without a name", async function() {
+    await pot.addCharity(charity, "", {from: charityManager}).shouldBeReverted();
+  });
+
+
+  it("should register charity", async function() {
+    await pot.addCharity(charity, "Charity", {from: charityManager});
+  });
+
+
+  it("should not register charity if it was added before", async function() {
+    await pot.addCharity(charity, "Charity", {from: charityManager}).shouldBeReverted();
   });
 
 });

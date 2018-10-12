@@ -20,6 +20,15 @@ contract DonationsPot is Ownable {
         _;
     }
 
+    /**
+    * @dev Throws if called by any account other than the token distributor.
+    */
+    modifier onlyCharityManager() {
+        require(msg.sender == charityManager);
+        _;
+    }
+
+
     struct Donor {
         string name;
         uint256 balance;
@@ -46,6 +55,18 @@ contract DonationsPot is Ownable {
         daiToken =_daiToken;
     }
 
+    /**
+    * @dev Function to add charity and enable it to receive donations.
+    * @param _charityAddress address of the charity project registered on the Alice platform.
+    * @param _charityName name of charity acting as a human readable label.
+    */
+    function addCharity(address _charityAddress, string _charityName) public onlyCharityManager {
+        require(bytes(_charityName).length > 0);
+        require(bytes(charities[_charityAddress].name).length == 0);
+
+        charities[_charityAddress] = Charity(_charityName, 0, 0);
+    }
+
     function registerDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
         require(daiToken.balanceOf(this).sub(registeredBalance) >= _value);
         require(_value > 0);
@@ -65,10 +86,20 @@ contract DonationsPot is Ownable {
 
     }
 
+    /**
+    * @dev Function to check the total balance of a donor.
+    * @param _donorAddress address of the donor.
+    * @return A uint256 specifying the amount of dai.
+    */
     function getDonorBalance(address _donorAddress) public view returns(uint256) {
         return donors[_donorAddress].balance;
     }
 
+    /**
+    * @dev Function to check the number of donations made by a donor.
+    * @param _donorAddress address of the donor.
+    * @return A uint256 specifying the number of donations.
+    */
     function getDonorDonationsCount(address _donorAddress) public view returns(uint256) {
         return donors[_donorAddress].donationsCount;
     }
