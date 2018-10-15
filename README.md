@@ -1,18 +1,18 @@
-# Alice Smart Contracts
+# Alice + Dai
 
-This project aims to integrate the Alice donation platform (<https://alice.si>) with the Dai stable coin from MakerDao(https://makerdao.com/).
+This project aims to integrate the Alice donation platform (<https://alice.si>) with the Dai stable coin from the MakerDao (https://makerdao.com/).
 
 ### Overview
 
-The core mechanism for integration is implemented as a Donation Pot smart contract which collects donations, register validated charities and allows donors to send the tokens to one of them. It also enables tracking of the donated funds and provides a safety mechanism for the redistribution of the forgotten donations.
+The core mechanism for integration is implemented as a Donation Pot smart contract which collects donations, registers validated charities and allows donors to send the tokens to one of the vetted charities. It also enables tracking of the donated funds and provides a safety mechanism for the redistribution of the forgotten or unregistered donations.
 
-The two-phase donation process assures that donors can first send a donation without any extra overhead and then create an account on the Alice platform, at a convenient time, to select a target charity and track the impact. It will also assure that no donation is wasted as the funds deposited by unregistered donors will be automatically distributed to a random charity after 100 days.
+The two-phase donation process assures that donors can first send a donation without any extra overhead. Later on, at a convenient time, they can create an account on the Alice platform to select a target charity and track the impact. It will also assure that no donation is wasted as the funds deposited by unregistered donors will be automatically distributed to a random charity after 100 days.
 
 ### Running tests
 
 Install all of the necessary dependencies first:
 
-   yarn install
+    yarn install
 
 Then you can run a set of tests based written with mocha based on the truffle framework:
 
