@@ -97,6 +97,15 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
   });
 
 
+  it("should not distribute forgotten donations before deadline", async function() {
+    await pot.distributeForgottenDonations(donor1, charity, {from: charityManager}).shouldBeReverted();;
+  });
+
+  it("should not distribute forgotten donations by someone other than the charity manager", async function() {
+    await pot.distributeForgottenDonations(donor1, charity).shouldBeReverted();;
+  });
+
+
   it("should transfer donation to charity", async function() {
     await pot.transferDonation(charity, 10, {from: donor1});
 

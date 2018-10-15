@@ -33,6 +33,7 @@ contract DonationsPot is Ownable {
         string name;
         uint256 balance;
         uint256 donationsCount;
+        uint256 lastDonationTime;
     }
 
     struct Charity {
@@ -77,10 +78,11 @@ contract DonationsPot is Ownable {
         require(_value > 0);
 
         if (donors[_from].donationsCount == 0) {
-            donors[_from] = Donor(_name, _value, 1);
+            donors[_from] = Donor(_name, _value, 1, now);
         } else {
             donors[_from].balance = donors[_from].balance.add(_value);
             donors[_from].donationsCount = donors[_from].donationsCount.add(1);
+            donors[_from].lastDonationTime = now;
         }
 
         registeredBalance = registeredBalance.add(_value);
@@ -88,6 +90,18 @@ contract DonationsPot is Ownable {
     }
 
     function transferDonation(address _charityAddress, uint256 _value) public {
+        processDonationTransfer(msg.sender, _charityAddress, _value);
+    }
+
+    function distributeForgottenDonations(address _donorAddress, address _charityAddress) public onlyCharityManager {
+        Donor storage donor = donors[msg.sender];
+        require(donor.balance >= 0);
+        require(now > donor.lastDonationTime.add(100 days));
+
+        processDonationTransfer(_donorAddress, _charityAddress, donor.balance);
+    }
+
+    function processDonationTransfer(address _donorAddress, address _charityAddress, uint256 _value) private {
         require(isCharityActive(_charityAddress));
         require(_value > 0);
 
