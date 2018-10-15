@@ -105,7 +105,6 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
     await pot.distributeForgottenDonations(donor1, charity).shouldBeReverted();;
   });
 
-
   it("should transfer donation to charity", async function() {
     await pot.transferDonation(charity, 10, {from: donor1});
 
@@ -148,6 +147,16 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
   });
 
 
+  it("should not transfer unregistered tokens by someone other than charity manager", async function() {
+    await dai.mint(pot.address, 7);
+    await pot.transferUnregisteredTokens(charity).shouldBeReverted();
+  });
 
+
+  it("should transfer unregistered tokens", async function() {
+    await pot.transferUnregisteredTokens(charity, {from: charityManager});
+
+    (await dai.balanceOf(charity)).should.be.bignumber.equal(28);
+  });
 
 });

@@ -89,16 +89,37 @@ contract DonationsPot is Ownable {
         emit DonationRegistered(_from, _name, _value);
     }
 
+    /**
+    * @dev Function to transfer a donation to the selected charity.
+    * @param _charityAddress address of the target charity.
+    * @param _value amount of the donation expressed in Dai.
+    */
     function transferDonation(address _charityAddress, uint256 _value) public {
         processDonationTransfer(msg.sender, _charityAddress, _value);
     }
 
+    /**
+    * @dev Function to distribute forgotten donations from an inactive donor.
+    * @param _donorAddress address of the inactive donor.
+    * @param _charityAddress random charity than is going to receive the donation.
+    */
     function distributeForgottenDonations(address _donorAddress, address _charityAddress) public onlyCharityManager {
         Donor storage donor = donors[msg.sender];
         require(donor.balance >= 0);
         require(now > donor.lastDonationTime.add(100 days));
 
         processDonationTransfer(_donorAddress, _charityAddress, donor.balance);
+    }
+
+    /**
+    * @dev Function to transfer tokens deposited on the contract by mistake without a proper registration.
+    * @param _charityAddress random charity than is going to receive the donation.
+    */
+    function transferUnregisteredTokens(address _charityAddress) public onlyCharityManager {
+        uint256 unRegisteredBalance = daiToken.balanceOf(this).sub(registeredBalance);
+        require(unRegisteredBalance > 0);
+
+        daiToken.transfer(_charityAddress, unRegisteredBalance);
     }
 
     function processDonationTransfer(address _donorAddress, address _charityAddress, uint256 _value) private {
@@ -115,6 +136,8 @@ contract DonationsPot is Ownable {
         Charity storage charity = charities[_charityAddress];
         charity.balance = charity.balance.add(_value);
         charity.donationsCount = charity.donationsCount.add(1);
+
+        registeredBalance = registeredBalance.sub(_value);
 
         emit DonationTransferred(msg.sender, donor.name, _charityAddress, charity.name, _value);
     }
