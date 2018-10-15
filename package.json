@@ -2,24 +2,20 @@
   "name": "alice-contracts",
   "version": "0.0.1",
   "author": "Jakub Wojciechowski",
-  "description": "Smart contracts Code Club - tokens",
+  "description": "Integration of the Alice donation platfrom with the Dai stable coin",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jakub-wojciechowski/sc3-tokens.git"
+    "url": "https://github.com/alice-si/alice-dai"
   },
   "scripts": {
     "test": "scripts/test.sh",
-    "console": "truffle console",
-    "coverage": "scripts/coverage.sh",
-    "coveralls": "scripts/coveralls.sh",
-    "build": "webpack",
-    "dev": "webpack-dev-server"
+    "console": "truffle console"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jakub-wojciechowski/sc3-tokens/issues"
+    "url": "https://github.com/alice-si/alice-dai/issues"
   },
-  "homepage": "https://github.com/jakub-wojciechowski/sc3-tokens",
+  "homepage": "https://github.com/alice-si/alice-dai",
   "dependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
