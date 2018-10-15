@@ -3,7 +3,7 @@ require('./test-utils');
 var DaiMock = artifacts.require("DaiMock");
 var DonationsPot = artifacts.require("DonationsPot");
 
-contract('Donations Pot', function([owner, charityManager, tokenDistributor, donor1, donor2, charity]) {
+contract('Donations Pot', function([owner, charityManager, tokenDistributor, donor1, donor2, charity, unregisteredCharity]) {
   var dai, pot;
 
   before("deploy Donations Pot", async function() {
@@ -80,5 +80,65 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
   it("should not register charity if it was added before", async function() {
     await pot.addCharity(charity, "Charity", {from: charityManager}).shouldBeReverted();
   });
+
+
+  it("should not transfer to an unregistered charity", async function() {
+    await pot.transferDonation(unregisteredCharity, 0, {from: donor1}).shouldBeReverted();
+  });
+
+
+  it("should not transfer an empty donation", async function() {
+    await pot.transferDonation(charity, 0, {from: donor1}).shouldBeReverted();
+  });
+
+
+  it("should not donate more than registered", async function() {
+    await pot.transferDonation(charity, 13, {from: donor1}).shouldBeReverted();
+  });
+
+
+  it("should transfer donation to charity", async function() {
+    await pot.transferDonation(charity, 10, {from: donor1});
+
+    //Updated donor data
+    (await dai.balanceOf(pot.address)).should.be.bignumber.equal(11);
+    (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(2);
+
+    //Updated charity data
+    (await dai.balanceOf(charity)).should.be.bignumber.equal(10);
+    (await pot.getCharityBalance(charity)).should.be.bignumber.equal(10);
+    (await pot.getCharityDonationsCount(charity)).should.be.bignumber.equal(1);
+  });
+
+
+  it("should transfer second donation to charity", async function() {
+    await pot.transferDonation(charity, 2, {from: donor1});
+
+    //Updated donor data
+    (await dai.balanceOf(pot.address)).should.be.bignumber.equal(9);
+    (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(0);
+
+    //Updated charity data
+    (await dai.balanceOf(charity)).should.be.bignumber.equal(12);
+    (await pot.getCharityBalance(charity)).should.be.bignumber.equal(12);
+    (await pot.getCharityDonationsCount(charity)).should.be.bignumber.equal(2);
+  });
+
+
+  it("should transfer thrid donation to charity", async function() {
+    await pot.transferDonation(charity, 9, {from: donor2});
+
+    //Updated donor data
+    (await dai.balanceOf(pot.address)).should.be.bignumber.equal(0);
+    (await pot.getDonorBalance(donor2)).should.be.bignumber.equal(0);
+
+    //Updated charity data
+    (await dai.balanceOf(charity)).should.be.bignumber.equal(21);
+    (await pot.getCharityBalance(charity)).should.be.bignumber.equal(21);
+    (await pot.getCharityDonationsCount(charity)).should.be.bignumber.equal(3);
+  });
+
+
+
 
 });

@@ -62,11 +62,16 @@ contract DonationsPot is Ownable {
     */
     function addCharity(address _charityAddress, string _charityName) public onlyCharityManager {
         require(bytes(_charityName).length > 0);
-        require(bytes(charities[_charityAddress].name).length == 0);
-
+        require(!isCharityActive(_charityAddress));
         charities[_charityAddress] = Charity(_charityName, 0, 0);
     }
 
+    /**
+    * @dev Function to register a donation sent to the pot contract on donor account.
+    * @param _from address of the charity donor.
+    * @param _name name of the donor (recorded on the first donation).
+    * @param _value amount of the donation expressed in Dai.
+    */
     function registerDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
         require(daiToken.balanceOf(this).sub(registeredBalance) >= _value);
         require(_value > 0);
@@ -82,8 +87,22 @@ contract DonationsPot is Ownable {
         emit DonationRegistered(_from, _name, _value);
     }
 
-    function transferDonation(address _charity) public {
+    function transferDonation(address _charityAddress, uint256 _value) public {
+        require(isCharityActive(_charityAddress));
+        require(_value > 0);
 
+        Donor storage donor = donors[msg.sender];
+        require(donor.balance >= _value);
+
+        daiToken.transfer(_charityAddress, _value);
+
+        donor.balance = donor.balance.sub(_value);
+
+        Charity storage charity = charities[_charityAddress];
+        charity.balance = charity.balance.add(_value);
+        charity.donationsCount = charity.donationsCount.add(1);
+
+        emit DonationTransferred(msg.sender, donor.name, _charityAddress, charity.name, _value);
     }
 
     /**
@@ -102,6 +121,33 @@ contract DonationsPot is Ownable {
     */
     function getDonorDonationsCount(address _donorAddress) public view returns(uint256) {
         return donors[_donorAddress].donationsCount;
+    }
+
+    /**
+    * @dev Function to check the total balance of a charity.
+    * @param _charityAddress address of the charity.
+    * @return A uint256 specifying the amount of dai.
+    */
+    function getCharityBalance(address _charityAddress) public view returns(uint256) {
+        return charities[_charityAddress].balance;
+    }
+
+    /**
+    * @dev Function to check the number of donations made by a charity.
+    * @param _charityAddress address of the charity.
+    * @return A uint256 specifying the number of donations.
+    */
+    function getCharityDonationsCount(address _charityAddress) public view returns(uint256) {
+        return charities[_charityAddress].donationsCount;
+    }
+
+    /**
+    * @dev Function to check if charity was added by the manager and is available to receive donations.
+    * @param _charityAddress address of the donor.
+    * @return true if charity can accept donations
+    */
+    function isCharityActive(address _charityAddress) public view returns(bool) {
+        return bytes(charities[_charityAddress].name).length > 0;
     }
 
 
