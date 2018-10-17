@@ -1,12 +1,12 @@
 # Alice + Dai
 
-This project aims to integrate the Alice donation platform (<https://alice.si>) with the Dai stable coin from the MakerDao (https://makerdao.com/).
+This project aims to integrate the Alice donation platform (<https://alice.si>) with the Dai stablecoin (https://makerdao.com/dai), for an event at Devcon4. This is the first step of a deeper integration of Dai within the Alice protocol.
 
 ### Overview
 
-The core mechanism for integration is implemented as a Donation Pot smart contract which collects donations, registers validated charities and allows donors to send the tokens to one of the vetted charities. It also enables tracking of the donated funds and provides a safety mechanism for the redistribution of the forgotten or unregistered donations.
+The core mechanism for integration is implemented as a "Donation Pot" smart contract that collects donations, registers validated charity projects and allows donors to send the tokens to one of the vetted charity projects. It also enables tracking of the donated funds and provides a safety mechanism for the redistribution of forgotten or unregistered donations.
 
-The two-phase donation process assures that donors can first send a donation without any extra overhead. Later on, at a convenient time, they can create an account on the Alice platform to select a target charity and track the impact. It will also assure that no donation is wasted as the funds deposited by unregistered donors will be automatically distributed to a random charity after 100 days.
+The two-phase donation process assures that donors can first send a donation without any friction, i.e. they can bypass the usual Alice sign-up process so that Dai donations can be collected immediately by the smart contract in a general "donation pot". Later on, at a convenient time, donors will be able to create an account on the Alice platform to select a target charity project and track its impact. It will also assure that no donation is wasted as the funds deposited by unregistered donors will be automatically distributed randomly to charity projects on Alice after 100 days.
 
 ### Running tests
 
@@ -14,13 +14,13 @@ Install all of the necessary dependencies first:
 
     yarn install
 
-Then you can run a set of tests based written with mocha based on the truffle framework:
+Then you can run a set of tests written with mocha based on the truffle framework:
 
     yarn test
 
 ## Contributions
 
-All comments and ideas for improvements and pull requests are welcomed. We want to improve the project based on feedback from the community.
+All comments and ideas for improvements and pull requests are welcome. We want to improve the project based on feedback from the community.
 
 ## License
 
