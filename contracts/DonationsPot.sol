@@ -21,7 +21,7 @@ contract DonationsPot is Ownable {
     }
 
     /**
-    * @dev Throws if called by any account other than the token distributor.
+    * @dev Throws if called by any account other than the charity manager.
     */
     modifier onlyCharityManager() {
         require(msg.sender == charityManager);
