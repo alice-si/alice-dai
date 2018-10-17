@@ -3,12 +3,12 @@ require('./test-utils');
 var DaiMock = artifacts.require("DaiMock");
 var DonationsPot = artifacts.require("DonationsPot");
 
-contract('Donations Pot', function([owner, charityManager, tokenDistributor, donor1, donor2, charity, unregisteredCharity]) {
+contract('Donations Pot', function([owner, socialProjectManager, tokenDistributor, donor1, donor2, socialProject, unregisteredSocialProject]) {
   var dai, pot;
 
   before("deploy Donations Pot", async function() {
     dai = await DaiMock.new();
-    pot = await DonationsPot.new(charityManager, tokenDistributor, dai.address);
+    pot = await DonationsPot.new(socialProjectManager, tokenDistributor, dai.address);
   });
 
   it("should not register donation without Dai payment", async function() {
@@ -62,101 +62,101 @@ contract('Donations Pot', function([owner, charityManager, tokenDistributor, don
   });
 
 
-  it("should not add charity by someone else than a charity manager", async function() {
-    await pot.addCharity(charity, "Charity").shouldBeReverted();
+  it("should not add socialProject by someone else than a socialProject manager", async function() {
+    await pot.addSocialProject(socialProject, "SocialProject").shouldBeReverted();
   });
 
 
-  it("should not add charity without a name", async function() {
-    await pot.addCharity(charity, "", {from: charityManager}).shouldBeReverted();
+  it("should not add socialProject without a name", async function() {
+    await pot.addSocialProject(socialProject, "", {from: socialProjectManager}).shouldBeReverted();
   });
 
 
-  it("should register charity", async function() {
-    await pot.addCharity(charity, "Charity", {from: charityManager});
+  it("should register socialProject", async function() {
+    await pot.addSocialProject(socialProject, "SocialProject", {from: socialProjectManager});
   });
 
 
-  it("should not register charity if it was added before", async function() {
-    await pot.addCharity(charity, "Charity", {from: charityManager}).shouldBeReverted();
+  it("should not register socialProject if it was added before", async function() {
+    await pot.addSocialProject(socialProject, "SocialProject", {from: socialProjectManager}).shouldBeReverted();
   });
 
 
-  it("should not transfer to an unregistered charity", async function() {
-    await pot.transferDonation(unregisteredCharity, 0, {from: donor1}).shouldBeReverted();
+  it("should not transfer to an unregistered socialProject", async function() {
+    await pot.transferDonation(unregisteredSocialProject, 0, {from: donor1}).shouldBeReverted();
   });
 
 
   it("should not transfer an empty donation", async function() {
-    await pot.transferDonation(charity, 0, {from: donor1}).shouldBeReverted();
+    await pot.transferDonation(socialProject, 0, {from: donor1}).shouldBeReverted();
   });
 
 
   it("should not donate more than registered", async function() {
-    await pot.transferDonation(charity, 13, {from: donor1}).shouldBeReverted();
+    await pot.transferDonation(socialProject, 13, {from: donor1}).shouldBeReverted();
   });
 
 
   it("should not distribute forgotten donations before deadline", async function() {
-    await pot.distributeForgottenDonations(donor1, charity, {from: charityManager}).shouldBeReverted();;
+    await pot.distributeForgottenDonations(donor1, socialProject, {from: socialProjectManager}).shouldBeReverted();;
   });
 
-  it("should not distribute forgotten donations by someone other than the charity manager", async function() {
-    await pot.distributeForgottenDonations(donor1, charity).shouldBeReverted();;
+  it("should not distribute forgotten donations by someone other than the socialProject manager", async function() {
+    await pot.distributeForgottenDonations(donor1, socialProject).shouldBeReverted();;
   });
 
-  it("should transfer donation to charity", async function() {
-    await pot.transferDonation(charity, 10, {from: donor1});
+  it("should transfer donation to socialProject", async function() {
+    await pot.transferDonation(socialProject, 10, {from: donor1});
 
     //Updated donor data
     (await dai.balanceOf(pot.address)).should.be.bignumber.equal(11);
     (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(2);
 
-    //Updated charity data
-    (await dai.balanceOf(charity)).should.be.bignumber.equal(10);
-    (await pot.getCharityBalance(charity)).should.be.bignumber.equal(10);
-    (await pot.getCharityDonationsCount(charity)).should.be.bignumber.equal(1);
+    //Updated socialProject data
+    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(10);
+    (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(10);
+    (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(1);
   });
 
 
-  it("should transfer second donation to charity", async function() {
-    await pot.transferDonation(charity, 2, {from: donor1});
+  it("should transfer second donation to socialProject", async function() {
+    await pot.transferDonation(socialProject, 2, {from: donor1});
 
     //Updated donor data
     (await dai.balanceOf(pot.address)).should.be.bignumber.equal(9);
     (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(0);
 
-    //Updated charity data
-    (await dai.balanceOf(charity)).should.be.bignumber.equal(12);
-    (await pot.getCharityBalance(charity)).should.be.bignumber.equal(12);
-    (await pot.getCharityDonationsCount(charity)).should.be.bignumber.equal(2);
+    //Updated socialProject data
+    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(12);
+    (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(12);
+    (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(2);
   });
 
 
-  it("should transfer thrid donation to charity", async function() {
-    await pot.transferDonation(charity, 9, {from: donor2});
+  it("should transfer thrid donation to socialProject", async function() {
+    await pot.transferDonation(socialProject, 9, {from: donor2});
 
     //Updated donor data
     (await dai.balanceOf(pot.address)).should.be.bignumber.equal(0);
     (await pot.getDonorBalance(donor2)).should.be.bignumber.equal(0);
 
-    //Updated charity data
-    (await dai.balanceOf(charity)).should.be.bignumber.equal(21);
-    (await pot.getCharityBalance(charity)).should.be.bignumber.equal(21);
-    (await pot.getCharityDonationsCount(charity)).should.be.bignumber.equal(3);
+    //Updated socialProject data
+    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(21);
+    (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(21);
+    (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(3);
   });
 
 
-  it("should not transfer unregistered tokens by someone other than charity manager", async function() {
+  it("should not transfer unregistered tokens by someone other than socialProject manager", async function() {
     await dai.mint(pot.address, 7);
-    await pot.transferUnregisteredTokens(charity).shouldBeReverted();
+    await pot.transferUnregisteredTokens(socialProject).shouldBeReverted();
   });
 
 
   it("should transfer unregistered tokens", async function() {
-    await pot.transferUnregisteredTokens(charity, {from: charityManager});
+    await pot.transferUnregisteredTokens(socialProject, {from: socialProjectManager});
 
-    (await dai.balanceOf(charity)).should.be.bignumber.equal(28);
+    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(28);
   });
 
 });
