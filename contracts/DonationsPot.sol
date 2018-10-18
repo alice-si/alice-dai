@@ -67,16 +67,44 @@ contract DonationsPot is Ownable {
         charities[_socialProjectAddress] = SocialProject(_socialProjectName, 0, 0);
     }
 
+
     /**
-    * @dev Function to register a donation sent to the pot contract on donor account.
-    * @param _from address of the SocialProject donor.
+    * @dev Function to notify  a donation sent to the pot contract on the donor account.
+    *      It could be invoked only by a trusted service that distribute the tokens.
+    * @param _from address of the donor.
     * @param _name name of the donor (recorded on the first donation).
     * @param _value amount of the donation expressed in Dai.
     */
-    function registerDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
+    function notifyDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
         require(daiToken.balanceOf(this).sub(registeredBalance) >= _value);
         require(_value > 0);
 
+        registerDonation(_from, _name, _value);
+    }
+
+
+    /**
+    * @dev Function to pull the donation from the donor account and register it on the pot.
+    *      It uses the allowance mechanism of the ERC20 token to encapsulate both
+    *      the transfer and registration as an atomic operation.
+    * @param _from address of the donor.
+    * @param _name name of the donor (recorded on the first donation).
+    * @param _value amount of the donation expressed in Dai.
+    */
+    function pullDonation(address _from, string _name, uint256 _value) public {
+        require(_value > 0);
+        daiToken.transferFrom(msg.sender, this, _value);
+
+        registerDonation(_from, _name, _value);
+    }
+
+    /**
+    * @dev Internal function that registers donation on donor account.
+    * @param _from address of the donor.
+    * @param _name name of the donor (recorded on the first donation).
+    * @param _value amount of the donation expressed in Dai.
+    */
+    function registerDonation(address _from, string _name, uint256 _value) private {
         if (donors[_from].donationsCount == 0) {
             donors[_from] = Donor(_name, _value, 1, now);
         } else {
