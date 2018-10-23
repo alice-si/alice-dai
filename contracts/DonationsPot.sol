@@ -47,10 +47,16 @@ contract DonationsPot is Ownable {
 
     uint256 public registeredBalance;
 
-    event DonationRegistered(address from, string donorName, uint256 value);
-    event DonationTransferred(address from, string donorName, address to, string SocialProject, uint256 value);
+    uint256 public donationsCount;
+    uint256 public donationsTotalAmount;
 
-    constructor(address _socialProjectManager, address _tokenDistributor, ERC20 _daiToken) {
+    uint256 public transfersCount;
+    uint256 public transfersTotalAmount;
+
+    event DonationRegistered(address from, string donorName, uint256 donationId, uint256 value);
+    event DonationTransferred(address from, address to, uint256 transferId, string donorName, uint256 value);
+
+    constructor(address _socialProjectManager, address _tokenDistributor, ERC20 _daiToken) public {
         SocialProjectManager = _socialProjectManager;
         tokenDistributor = _tokenDistributor;
         daiToken =_daiToken;
@@ -114,7 +120,9 @@ contract DonationsPot is Ownable {
         }
 
         registeredBalance = registeredBalance.add(_value);
-        emit DonationRegistered(_from, _name, _value);
+        emit DonationRegistered(_from, _name, donationsCount, _value);
+        donationsCount = donationsCount.add(1);
+        donationsTotalAmount = donationsTotalAmount.add(_value);
     }
 
     /**
@@ -167,7 +175,10 @@ contract DonationsPot is Ownable {
 
         registeredBalance = registeredBalance.sub(_value);
 
-        emit DonationTransferred(_donorAddress, donor.name, _socialProjectAddress, socialProject.name, _value);
+        emit DonationTransferred(_donorAddress, _socialProjectAddress, transfersCount, donor.name, _value);
+
+        transfersCount = transfersCount.add(1);
+        transfersTotalAmount = transfersTotalAmount.add(_value);
     }
 
     /**
@@ -213,6 +224,35 @@ contract DonationsPot is Ownable {
     */
     function isSocialProjectActive(address _socialProjectAddress) public view returns(bool) {
         return bytes(charities[_socialProjectAddress].name).length > 0;
+    }
+
+
+    /**
+    * @dev Function to return the total number of donations.
+    */
+    function getDonationsCount() public view returns(uint256) {
+        return donationsCount;
+    }
+
+    /**
+    * @dev Function to return the total amount of donations in Dai.
+    */
+    function getDonationsTotalAmount() public view returns(uint256) {
+        return donationsTotalAmount;
+    }
+
+    /**
+    * @dev Function to return the total number of donations.
+    */
+    function getTransfersCount() public view returns(uint256) {
+        return transfersCount;
+    }
+
+    /**
+    * @dev Function to return the total amount of donations in Dai.
+    */
+    function getTransfersTotalAmount() public view returns(uint256) {
+        return transfersTotalAmount;
     }
 
 

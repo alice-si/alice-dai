@@ -35,6 +35,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
     (await pot.registeredBalance()).should.be.bignumber.equal(5);
     (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(5);
     (await pot.getDonorDonationsCount(donor1)).should.be.bignumber.equal(1);
+
+    //Updated global data
+    (await pot.getDonationsCount()).should.be.bignumber.equal(1);
+    (await pot.getDonationsTotalAmount()).should.be.bignumber.equal(5);
   });
 
 
@@ -47,6 +51,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
     (await pot.registeredBalance()).should.be.bignumber.equal(12);
     (await pot.getDonorBalance(donor1)).should.be.bignumber.equal(12);
     (await pot.getDonorDonationsCount(donor1)).should.be.bignumber.equal(2);
+
+    //Updated global data
+    (await pot.getDonationsCount()).should.be.bignumber.equal(2);
+    (await pot.getDonationsTotalAmount()).should.be.bignumber.equal(12);
   });
 
 
@@ -60,6 +68,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
     (await pot.registeredBalance()).should.be.bignumber.equal(21);
     (await pot.getDonorBalance(donor2)).should.be.bignumber.equal(9);
     (await pot.getDonorDonationsCount(donor2)).should.be.bignumber.equal(1);
+
+    //Updated global data
+    (await pot.getDonationsCount()).should.be.bignumber.equal(3);
+    (await pot.getDonationsTotalAmount()).should.be.bignumber.equal(21);
   });
 
 
@@ -117,6 +129,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
     (await dai.balanceOf(socialProject)).should.be.bignumber.equal(10);
     (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(10);
     (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(1);
+
+    //Updated global data
+    (await pot.getTransfersCount()).should.be.bignumber.equal(1);
+    (await pot.getTransfersTotalAmount()).should.be.bignumber.equal(10);
   });
 
 
@@ -131,6 +147,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
     (await dai.balanceOf(socialProject)).should.be.bignumber.equal(12);
     (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(12);
     (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(2);
+
+    //Updated global data
+    (await pot.getTransfersCount()).should.be.bignumber.equal(2);
+    (await pot.getTransfersTotalAmount()).should.be.bignumber.equal(12);
   });
 
 
@@ -145,6 +165,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
     (await dai.balanceOf(socialProject)).should.be.bignumber.equal(21);
     (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(21);
     (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(3);
+
+    //Updated global data
+    (await pot.getTransfersCount()).should.be.bignumber.equal(3);
+    (await pot.getTransfersTotalAmount()).should.be.bignumber.equal(21);
   });
 
 
