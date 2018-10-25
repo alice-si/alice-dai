@@ -32,6 +32,7 @@ contract DonationsPot is Ownable {
     struct Donor {
         string name;
         uint256 balance;
+        uint256 totalDonated;
         uint256 donationsCount;
         uint256 lastDonationTime;
     }
@@ -53,6 +54,8 @@ contract DonationsPot is Ownable {
     uint256 public transfersCount;
     uint256 public transfersTotalAmount;
 
+    address public defaultSocialProject;
+
     event DonationRegistered(address from, string donorName, uint256 donationId, uint256 value);
     event DonationTransferred(address from, address to, uint256 transferId, string donorName, uint256 value);
 
@@ -71,6 +74,16 @@ contract DonationsPot is Ownable {
         require(bytes(_socialProjectName).length > 0);
         require(!isSocialProjectActive(_socialProjectAddress));
         charities[_socialProjectAddress] = SocialProject(_socialProjectName, 0, 0);
+    }
+
+
+    /**
+    * @dev Function to mark a socialProject as default and eligible for fast-track donations.
+    * @param _socialProjectAddress address of the selected social project.
+    */
+    function markSocialProjectAsDefault(address _socialProjectAddress) public onlySocialProjectManager {
+        require(isSocialProjectActive(_socialProjectAddress));
+        defaultSocialProject = _socialProjectAddress;
     }
 
 
@@ -104,6 +117,22 @@ contract DonationsPot is Ownable {
         registerDonation(_from, _name, _value);
     }
 
+
+    /**
+    * @dev Function to register a donation and transfer it to a default charity in a single call.
+    * @param _from address of the donor.
+    * @param _name name of the donor (recorded on the first donation).
+    * @param _value amount of the donation expressed in Dai.
+    */
+    function fastTrackDonation(address _from, string _name, uint256 _value) public onlyTokenDistributor {
+        require(daiToken.balanceOf(this).sub(registeredBalance) >= _value);
+        require(_value > 0);
+        require(defaultSocialProject != 0x0);
+
+        registerDonation(_from, _name, _value);
+        processDonationTransfer(_from, defaultSocialProject, _value);
+    }
+
     /**
     * @dev Internal function that registers donation on donor account.
     * @param _from address of the donor.
@@ -112,12 +141,14 @@ contract DonationsPot is Ownable {
     */
     function registerDonation(address _from, string _name, uint256 _value) private {
         if (donors[_from].donationsCount == 0) {
-            donors[_from] = Donor(_name, _value, 1, now);
+            donors[_from] = Donor(_name, _value, _value, 1, now);
         } else {
             donors[_from].balance = donors[_from].balance.add(_value);
             donors[_from].donationsCount = donors[_from].donationsCount.add(1);
             donors[_from].lastDonationTime = now;
+            donors[_from].totalDonated = donors[_from].totalDonated.add(_value);
         }
+
 
         registeredBalance = registeredBalance.add(_value);
         emit DonationRegistered(_from, _name, donationsCount, _value);
@@ -188,6 +219,16 @@ contract DonationsPot is Ownable {
     */
     function getDonorBalance(address _donorAddress) public view returns(uint256) {
         return donors[_donorAddress].balance;
+    }
+
+
+    /**
+    * @dev Function to check the total amount of all of the donations from a given donor.
+    * @param _donorAddress address of the donor.
+    * @return A uint256 specifying the amount of dai.
+    */
+    function getDonorTotalDonated(address _donorAddress) public view returns(uint256) {
+        return donors[_donorAddress].totalDonated;
     }
 
     /**

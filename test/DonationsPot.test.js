@@ -3,7 +3,7 @@ require('./test-utils');
 var DaiMock = artifacts.require("DaiMock");
 var DonationsPot = artifacts.require("DonationsPot");
 
-contract('Donations Pot', function([owner, socialProjectManager, tokenDistributor, donor1, donor2, socialProject, unregisteredSocialProject]) {
+contract('Donations Pot', function([owner, socialProjectManager, tokenDistributor, donor1, donor2, donor3, socialProject, unregisteredSocialProject]) {
   var dai, pot;
 
   before("deploy Donations Pot", async function() {
@@ -172,6 +172,30 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
   });
 
 
+  it("should process a fast-tracked donation", async function() {
+    await pot.markSocialProjectAsDefault(socialProject, {from: socialProjectManager});
+    await dai.mint(pot.address, 20);
+    await pot.fastTrackDonation(donor3, "Donor_3", 20, {from: tokenDistributor});
+
+    //Updated donor data
+    (await pot.getDonorBalance(donor3)).should.be.bignumber.equal(0);
+    (await pot.getDonorDonationsCount(donor3)).should.be.bignumber.equal(1);
+    (await pot.getDonorTotalDonated(donor3)).should.be.bignumber.equal(20);
+
+    //Updated socialProject data
+    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(41);
+    (await pot.getSocialProjectBalance(socialProject)).should.be.bignumber.equal(41);
+    (await pot.getSocialProjectDonationsCount(socialProject)).should.be.bignumber.equal(4);
+
+    //Updated global data
+    (await pot.getDonationsCount()).should.be.bignumber.equal(4);
+    (await pot.getDonationsTotalAmount()).should.be.bignumber.equal(41);
+    (await pot.getTransfersCount()).should.be.bignumber.equal(4);
+    (await pot.getTransfersTotalAmount()).should.be.bignumber.equal(41);
+
+  });
+
+
   it("should not transfer unregistered tokens by someone other than socialProject manager", async function() {
     await dai.mint(pot.address, 7);
     await pot.transferUnregisteredTokens(socialProject).shouldBeReverted();
@@ -181,7 +205,10 @@ contract('Donations Pot', function([owner, socialProjectManager, tokenDistributo
   it("should transfer unregistered tokens", async function() {
     await pot.transferUnregisteredTokens(socialProject, {from: socialProjectManager});
 
-    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(28);
+    (await dai.balanceOf(socialProject)).should.be.bignumber.equal(48);
   });
+
+
+
 
 });
