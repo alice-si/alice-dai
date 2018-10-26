@@ -8,7 +8,7 @@ import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 contract DonationsPot is Ownable {
     using SafeMath for uint256;
 
-    address public SocialProjectManager;
+    address public socialProjectManager;
     address public tokenDistributor;
     ERC20 public daiToken;
 
@@ -24,7 +24,7 @@ contract DonationsPot is Ownable {
     * @dev Throws if called by any account other than the SocialProject manager.
     */
     modifier onlySocialProjectManager() {
-        require(msg.sender == SocialProjectManager);
+        require(msg.sender == socialProjectManager);
         _;
     }
 
@@ -60,7 +60,7 @@ contract DonationsPot is Ownable {
     event DonationTransferred(address from, address to, uint256 transferId, string donorName, uint256 value);
 
     constructor(address _socialProjectManager, address _tokenDistributor, ERC20 _daiToken) public {
-        SocialProjectManager = _socialProjectManager;
+        socialProjectManager = _socialProjectManager;
         tokenDistributor = _tokenDistributor;
         daiToken =_daiToken;
     }

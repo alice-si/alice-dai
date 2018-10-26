@@ -17,9 +17,8 @@ contract DaiMock is StandardToken, Ownable {
         totalSupply_ = totalSupply_.add(_value);
         balances[_to] =  balances[_to].add(_value);
 
-        emit MintEvent(_to, _value);
+        emit Transfer(0x0, _to, _value);
     }
 
-    event MintEvent(address indexed to, uint value);
-    event DestroyEvent(address indexed from, uint value);
+
 }
