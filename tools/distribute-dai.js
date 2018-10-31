@@ -8,10 +8,10 @@ let dai;
 Dai.setProvider(web3.currentProvider);
 
 //Here we define the deployed addresses:
-let daiAddress = "0x8c808003e8831396ca18fe7dbd1ff9e70dbb2e8a";
+let daiAddress = "0xba790feee551b7639acb3464c971400541eb8610";
 
 let daiOwner = "0xfb1d14b22b957eb3c29f6302d4cf5d90a5ea5da5";
-let target = "0xbc773ca86d9071e163168a8a5ad25e235907f9e7";
+let target   = "0x1e2220a4211b34266d803567b835086632d8cbec";
 
 
 let value = web3.toWei(5, 'ether');
